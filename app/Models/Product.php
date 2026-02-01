@@ -21,4 +21,14 @@ class Product extends Model
         'price',
         'stock',
     ];
+
+      // accessor URL gambar
+    public function getImageUrlAttribute()
+    {
+        if ($this->image && file_exists(storage_path('app/public/products/' . $this->image))) {
+            return asset('storage/products/' . $this->image);
+        }
+
+        return asset('images/no-image.png');
+    }
 }

@@ -2,24 +2,16 @@
 
 namespace App\Http\Controllers;
 
-//import model product
 use App\Models\Product;
-//import return type View
-use Illuminate\View\View;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Yajra\DataTables\DataTables;
+use Illuminate\View\View;
 
 class ProductController extends Controller
 {
-    /**
-     * index
-     *
-     * @return void
-     */
     public function index(): View
     {
-        //render view with products
         return view('products.index');
     }
 
@@ -32,31 +24,26 @@ class ProductController extends Controller
                 ->addIndexColumn()
 
                 ->addColumn('image', function ($product) {
-                    if ($product->image) {
-                        return '<img src="' . asset('storage/products/' . $product->image) . '"
-                width="80"
-                class="rounded shadow-sm">';
-                    }
-                    return '-';
+                    return '<img src="'.$product->image_url.'" width="80" class="rounded shadow-sm">';
                 })
 
                 ->addColumn('price', function ($product) {
-                    return "Rp " . number_format($product->price, 2, ',', '.');
+                    return 'Rp ' . number_format($product->price, 0, ',', '.');
                 })
 
                 ->addColumn('actions', function ($product) {
                     return '
-                    <form action="' . route('products.destroy', $product->id) . '" method="POST">
-                        ' . csrf_field() . method_field('DELETE') . '
+                    <form action="'.route('products.destroy', $product->id).'" method="POST">
+                        '.csrf_field().method_field('DELETE').'
 
                         <button type="button"
                             class="btn btn-sm btn-primary-custom text-white btn-edit"
-                            data-id="' . $product->id . '"
-                            data-title="' . e($product->title) . '"
-                            data-description="' . e($product->description) . '"
-                            data-price="' . $product->price . '"
-                            data-stock="' . $product->stock . '"
-                            data-image="' . asset('storage/products/' . $product->image) . '">
+                            data-id="'.$product->id.'"
+                            data-title="'.e($product->title).'"
+                            data-description="'.e($product->description).'"
+                            data-price="'.$product->price.'"
+                            data-stock="'.$product->stock.'"
+                            data-image="'.$product->image_url.'">
                             Edit
                         </button>
 
@@ -75,7 +62,7 @@ class ProductController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'image' => 'required|image|mimes:jpeg,jpg,png|max:2048',
+            'image' => 'required|image|mimes:jpg,jpeg,png|max:2048',
             'title' => 'required|string|max:255',
             'description' => 'nullable|string',
             'price' => 'required|numeric',
@@ -93,7 +80,7 @@ class ProductController extends Controller
             'stock' => $request->stock,
         ]);
 
-        return redirect()->back()->with('success', 'Product berhasil ditambahkan');
+        return back()->with('success', 'Product berhasil ditambahkan');
     }
 
     public function update(Request $request, $id)
@@ -101,7 +88,7 @@ class ProductController extends Controller
         $product = Product::findOrFail($id);
 
         $request->validate([
-            'image' => 'nullable|image|mimes:jpeg,jpg,png|max:2048',
+            'image' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
             'title' => 'required|string|max:255',
             'description' => 'nullable|string',
             'price' => 'required|numeric',
@@ -109,7 +96,9 @@ class ProductController extends Controller
         ]);
 
         if ($request->hasFile('image')) {
-            Storage::delete('public/products/' . $product->image);
+            if ($product->image) {
+                Storage::delete('public/products/' . $product->image);
+            }
 
             $image = $request->file('image');
             $image->storeAs('public/products', $image->hashName());
@@ -124,20 +113,19 @@ class ProductController extends Controller
             'stock' => $request->stock,
         ]);
 
-        return redirect()->back()->with('success', 'Product berhasil diupdate');
+        return back()->with('success', 'Product berhasil diupdate');
     }
 
     public function destroy($id)
     {
-        // cari product
         $product = Product::findOrFail($id);
 
-        // hapus gambar dari storage
-        Storage::delete('public/products/' . $product->image);
+        if ($product->image) {
+            Storage::delete('public/products/' . $product->image);
+        }
 
-        // hapus data dari database
         $product->delete();
 
-        return redirect()->back()->with('success', 'Product berhasil dihapus');
+        return back()->with('success', 'Product berhasil dihapus');
     }
 }

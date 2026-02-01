@@ -53,11 +53,13 @@
 </head>
 
 <body>
-
     <div class="container mt-5">
         <div class="row">
             <div class="col-md-12">
-
+                <form action="{{ route('logout') }}" method="POST" class="text-end">
+                    @csrf
+                    <button class="btn btn-danger btn-sm">Logout</button>
+                </form>
                 <h3 class="text-center my-4 page-title">
                     List Produk
                 </h3>
