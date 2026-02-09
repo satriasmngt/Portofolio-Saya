@@ -56,6 +56,20 @@
     <div class="container mt-5">
         <div class="row">
             <div class="col-md-12">
+                <div class="d-flex justify-content-end align-items-center mb-3">
+                    <div class="dropdown">
+                        <button class="btn btn-light dropdown-toggle d-flex align-items-center gap-2"
+                            data-bs-toggle="dropdown">
+
+                            <img src="https://ui-avatars.com/api/?name={{ auth()->user()->name }}" width="35"
+                                class="rounded-circle">
+
+                            <span>{{ auth()->user()->name }}</span>
+                        </button>
+                    </div>
+
+                </div>
+
                 <form action="{{ route('logout') }}" method="POST" class="text-end">
                     @csrf
                     <button class="btn btn-danger btn-sm">Logout</button>
@@ -286,7 +300,7 @@ $(document).on('click', '.btn-edit', function () {
     $('#editDescription').val($(this).data('description'));
     $('#editPrice').val($(this).data('price'));
     $('#editStock').val($(this).data('stock'));
-    $('#previewImage').attr('src', $(this).data('image'));
+    $('#previewImage').attr('src',$(this).data('image'));
 
     $('#editProductModal').modal('show');
 });

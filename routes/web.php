@@ -6,10 +6,15 @@ use App\Http\Controllers\ProductController;
 
 /*
 |--------------------------------------------------------------------------
-| DEFAULT
+| HOME
 |--------------------------------------------------------------------------
+| Kalau belum login → ke login
+| Kalau sudah login → ke products
 */
 Route::get('/', function () {
+    if (auth()->check()) {
+        return redirect()->route('products.index');
+    }
     return redirect()->route('login');
 });
 

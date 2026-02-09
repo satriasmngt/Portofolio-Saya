@@ -9,25 +9,16 @@ use App\Models\User;
 
 class LoginController extends Controller
 {
-    /**
-     * Tampilkan halaman login
-     */
     public function showLogin()
     {
         return view('auth.login');
     }
 
-    /**
-     * Tampilkan halaman register
-     */
     public function showRegister()
     {
         return view('auth.register');
     }
 
-    /**
-     * Proses login
-     */
     public function login(Request $request)
     {
         $request->validate([
@@ -45,15 +36,12 @@ class LoginController extends Controller
         return back()->with('error', 'Email atau password salah');
     }
 
-    /**
-     * Proses register
-     */
     public function register(Request $request)
     {
         $request->validate([
-            'name'                  => 'required|min:3',
-            'email'                 => 'required|email|unique:users,email',
-            'password'              => 'required|min:6|confirmed',
+            'name'     => 'required|min:3',
+            'email'    => 'required|email|unique:users,email',
+            'password' => 'required|min:6|confirmed',
         ]);
 
         User::create([
@@ -66,9 +54,6 @@ class LoginController extends Controller
             ->with('success', 'Registrasi berhasil, silakan login');
     }
 
-    /**
-     * Logout user
-     */
     public function logout(Request $request)
     {
         Auth::logout();
