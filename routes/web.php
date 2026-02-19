@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\LoginController;
 use App\Http\Controllers\ProductController;
+use App\Http\Controllers\UserController;
 
 /*
 |--------------------------------------------------------------------------
@@ -11,6 +12,7 @@ use App\Http\Controllers\ProductController;
 | Kalau belum login → ke login
 | Kalau sudah login → ke products
 */
+
 Route::get('/', function () {
     if (auth()->check()) {
         return redirect()->route('products.index');
@@ -48,7 +50,29 @@ Route::middleware('auth')->group(function () {
 
     Route::resource('products', ProductController::class);
 
-    Route::get('/products-datatable',
+
+    // halaman user
+    Route::get('/users', function () {
+        return view('users.index');
+    })->name('users.index');
+
+    // datatable
+    Route::get('/users/datatable', [UserController::class, 'datatable'])
+        ->name('users.datatable');
+
+    // store
+    Route::post('/users', [UserController::class, 'store'])
+        ->name('users.store');
+
+    // update
+    Route::put('/users/{id}', [UserController::class, 'update'])
+        ->name('users.update');
+
+    Route::delete('/users/{id}', [UserController::class, 'destroy'])
+        ->name('users.destroy');
+
+    Route::get(
+        '/products-datatable',
         [ProductController::class, 'datatable']
     )->name('products.datatable');
 });

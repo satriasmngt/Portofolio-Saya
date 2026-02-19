@@ -42,6 +42,9 @@ class LoginController extends Controller
             'name'     => 'required|min:3',
             'email'    => 'required|email|unique:users,email',
             'password' => 'required|min:6|confirmed',
+        ],
+        [
+             'password.confirmed' => 'Password tidak cocok dengan konfirmasi password',
         ]);
 
         User::create([

@@ -24,7 +24,7 @@ class ProductController extends Controller
                 ->addIndexColumn()
 
                 ->addColumn('image', function ($product) {
-                    return '<img src="'.$product->image_url.'" width="80" class="rounded shadow-sm">';
+                    return '<img src="' . $product->image_url . '" width="80" class="rounded shadow-sm">';
                 })
 
                 ->addColumn('price', function ($product) {
@@ -33,17 +33,17 @@ class ProductController extends Controller
 
                 ->addColumn('actions', function ($product) {
                     return '
-                    <form action="'.route('products.destroy', $product->id).'" method="POST">
-                        '.csrf_field().method_field('DELETE').'
+                    <form action="' . route('products.destroy', $product->id) . '" method="POST">
+                        ' . csrf_field() . method_field('DELETE') . '
 
                         <button type="button"
                             class="btn btn-sm btn-primary-custom text-white btn-edit"
-                            data-id="'.$product->id.'"
-                            data-title="'.e($product->title).'"
-                            data-description="'.e($product->description).'"
-                            data-price="'.$product->price.'"
-                            data-stock="'.$product->stock.'"
-                            data-image="'.$product->image_url.'">
+                            data-id="' . $product->id . '"
+                            data-title="' . e($product->title) . '"
+                            data-description="' . e($product->description) . '"
+                            data-price="' . $product->price . '"
+                            data-stock="' . $product->stock . '"
+                            data-image="' . $product->image_url . '">
                             Edit
                         </button>
 
@@ -61,71 +61,85 @@ class ProductController extends Controller
 
     public function store(Request $request)
     {
-        $request->validate([
-            'image' => 'required|image|mimes:jpg,jpeg,png|max:2048',
-            'title' => 'required|string|max:255',
-            'description' => 'nullable|string',
-            'price' => 'required|numeric',
-            'stock' => 'required|numeric',
-        ]);
+        try {
 
-        $image = $request->file('image');
-        $image->storeAs('public/products', $image->hashName());
-
-        Product::create([
-            'image' => $image->hashName(),
-            'title' => $request->title,
-            'description' => $request->description,
-            'price' => $request->price,
-            'stock' => $request->stock,
-        ]);
-
-        return back()->with('success', 'Product berhasil ditambahkan');
-    }
-
-    public function update(Request $request, $id)
-    {
-        $product = Product::findOrFail($id);
-
-        $request->validate([
-            'image' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
-            'title' => 'required|string|max:255',
-            'description' => 'nullable|string',
-            'price' => 'required|numeric',
-            'stock' => 'required|numeric',
-        ]);
-
-        if ($request->hasFile('image')) {
-            if ($product->image) {
-                Storage::delete('public/products/' . $product->image);
-            }
+            $request->validate([
+                'image' => 'required|image|mimes:jpg,jpeg,png|max:2048',
+                'title' => 'required|string|max:255',
+                'description' => 'required|string',
+                'price' => 'required|numeric',
+                'stock' => 'required|numeric',
+            ]);
 
             $image = $request->file('image');
             $image->storeAs('public/products', $image->hashName());
 
-            $product->image = $image->hashName();
+            Product::create([
+                'image' => $image->hashName(),
+                'title' => $request->title,
+                'description' => $request->description,
+                'price' => $request->price,
+                'stock' => $request->stock,
+            ]);
+
+            return back()->with('success', 'Product berhasil ditambahkan');
+        } catch (\Exception $e) {
+            return back()->with('error', 'Gagal menyimpan data');
         }
+    }
 
-        $product->update([
-            'title' => $request->title,
-            'description' => $request->description,
-            'price' => $request->price,
-            'stock' => $request->stock,
-        ]);
+    public function update(Request $request, $id)
+    {
+        try {
 
-        return back()->with('success', 'Product berhasil diupdate');
+            $product = Product::findOrFail($id);
+
+            $request->validate([
+                'image' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
+                'title' => 'required|string|max:255',
+                'description' => 'nullable|string',
+                'price' => 'required|numeric',
+                'stock' => 'required|numeric',
+            ]);
+
+            if ($request->hasFile('image')) {
+                if ($product->image) {
+                    Storage::delete('public/products/' . $product->image);
+                }
+
+                $image = $request->file('image');
+                $image->storeAs('public/products', $image->hashName());
+                $product->image = $image->hashName();
+            }
+
+            $product->update([
+                'title' => $request->title,
+                'description' => $request->description,
+                'price' => $request->price,
+                'stock' => $request->stock,
+            ]);
+
+            return back()->with('success', 'Product berhasil diupdate');
+        } catch (\Exception $e) {
+            return back()->with('error', 'Gagal update data');
+        }
     }
 
     public function destroy($id)
     {
-        $product = Product::findOrFail($id);
+        try {
 
-        if ($product->image) {
-            Storage::delete('public/products/' . $product->image);
+            $product = Product::findOrFail($id);
+
+            if ($product->image) {
+                Storage::delete('public/products/' . $product->image);
+            }
+
+            $product->delete();
+
+            return back()->with('success', 'Product berhasil dihapus');
+        } catch (\Exception $e) {
+            return back()->with('error', 'Gagal menghapus data');
         }
-
-        $product->delete();
-
-        return back()->with('success', 'Product berhasil dihapus');
     }
 }
