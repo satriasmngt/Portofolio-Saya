@@ -8,6 +8,7 @@
 
     <!-- Bootstrap -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
     <style>
         body {
@@ -47,6 +48,23 @@
             color: #fff;
             box-shadow: 0 0 0 0.15rem rgba(13, 110, 253, .3);
         }
+
+        .password-toggle {
+            width: 42px;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+        }
+
+        .password-toggle i {
+            transition: 0.2s;
+        }
+
+        .password-toggle:hover i {
+            color: #0d6efd;
+        }
     </style>
 </head>
 
@@ -59,7 +77,7 @@
 
                     <h4 class="text-center mb-4 text-primary fw-bold">Register</h4>
 
-                    <form action="{{ url('/register') }}" method="POST">
+                    <form id="registerForm" action="{{ url('/register') }}" method="POST">
                         @csrf
 
                         <div class="mb-3">
@@ -74,21 +92,35 @@
 
                         <div class="mb-3">
                             <label>Password</label>
-                            <input type="password" id="password" name="password" class="form-control" required>
+                            <div class="position-relative">
+                                <input type="password" id="password" name="password" class="form-control pe-5" required>
+
+                                <span class="position-absolute top-0 end-0 password-toggle" data-target="password">
+                                    <i class="fa-solid fa-eye text-secondary"></i>
+                                </span>
+                            </div>
                         </div>
 
                         <div class="mb-3">
                             <label>Konfirmasi Password</label>
-                            <input type="password" id="password_confirmation" name="password_confirmation"
-                                class="form-control" required>
+
+                            <div class="position-relative">
+                                <input type="password" id="password_confirmation" name="password_confirmation"
+                                    class="form-control pe-5" required>
+
+                                <span class="position-absolute top-0 end-0 password-toggle"
+                                    data-target="password_confirmation">
+                                    <i class="fa-solid fa-eye text-secondary"></i>
+                                </span>
+                            </div>
 
                             <div class="invalid-feedback">
                                 Password tidak cocok
                             </div>
                         </div>
-                            <button type="submit" class="btn btn-primary-custom w-100">
-                                Register
-                            </button>
+                        <button type="submit" id="submitBtn" class="btn btn-primary-custom w-100">
+                            Register
+                        </button>
                     </form>
 
                     <p class="text-center mt-3">
@@ -103,27 +135,60 @@
 
 
     <script>
-        const password = document.getElementById('password');
-    const confirmPassword = document.getElementById('password_confirmation');
+        const form = document.getElementById("registerForm");
+    const password = document.getElementById("password");
+    const confirmPassword = document.getElementById("password_confirmation");
+    const submitBtn = document.getElementById("submitBtn");
 
-    function checkPasswordMatch() {
-        if (confirmPassword.value === "") {
-            confirmPassword.classList.remove("is-invalid");
-            confirmPassword.classList.remove("is-valid");
-            return;
+    function validatePassword() {
+
+        // Jika salah satu kosong → disable submit
+        if (password.value === "" || confirmPassword.value === "") {
+            confirmPassword.classList.remove("is-invalid", "is-valid");
+            submitBtn.disabled = true;
+            return false;
         }
 
+        // Jika tidak cocok
         if (password.value !== confirmPassword.value) {
             confirmPassword.classList.add("is-invalid");
             confirmPassword.classList.remove("is-valid");
-        } else {
-            confirmPassword.classList.remove("is-invalid");
-            confirmPassword.classList.add("is-valid");
+            submitBtn.disabled = true;
+            return false;
         }
+
+        // Jika cocok
+        confirmPassword.classList.remove("is-invalid");
+        confirmPassword.classList.add("is-valid");
+        submitBtn.disabled = false;
+        return true;
     }
 
-    password.addEventListener("input", checkPasswordMatch);
-    confirmPassword.addEventListener("input", checkPasswordMatch);
+    password.addEventListener("input", validatePassword);
+    confirmPassword.addEventListener("input", validatePassword);
+
+    // Blok submit kalau tidak valid
+    form.addEventListener("submit", function (e) {
+        if (!validatePassword()) {
+            e.preventDefault();
+        }
+    });
+
+    // Toggle password
+    document.querySelectorAll(".password-toggle").forEach(toggle => {
+        toggle.addEventListener("click", function () {
+            const input = document.getElementById(this.dataset.target);
+            const icon = this.querySelector("i");
+
+            input.type = input.type === "password" ? "text" : "password";
+
+            icon.classList.toggle("fa-eye");
+            icon.classList.toggle("fa-eye-slash");
+        });
+    });
+
+    // Disable tombol saat pertama load
+    submitBtn.disabled = true;
     </script>
 </body>
 
