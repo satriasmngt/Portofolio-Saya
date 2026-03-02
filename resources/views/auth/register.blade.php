@@ -11,6 +11,11 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
     <style>
+        .form-control.is-valid,
+        .form-control.is-invalid {
+            background-image: none !important;
+        }
+
         body {
             background-color: #f4f8ff;
         }
@@ -20,50 +25,59 @@
             border: none;
         }
 
-        /* Tombol custom */
+        /* Tombol */
         .btn-primary-custom {
             background-color: #0d6efd;
             border: none;
             color: #fff;
             font-weight: 500;
-            transition: 0.2s;
+            transition: 0.2s ease;
         }
 
-        /* Hover */
         .btn-primary-custom:hover {
-            background-color: #0d6efd;
-            color: #fff;
-            opacity: 1;
+            opacity: 0.95;
         }
 
-        /* Klik */
-        .btn-primary-custom:active {
-            background-color: #0d6efd !important;
-            color: #fff;
-        }
-
-        /* Focus */
         .btn-primary-custom:focus {
-            background-color: #0d6efd;
-            color: #fff;
             box-shadow: 0 0 0 0.15rem rgba(13, 110, 253, .3);
         }
 
-        .password-toggle {
-            width: 42px;
+        /* Input dengan 2 icon */
+        .confirm-input {
+            padding-right: 85px;
+            /* ruang untuk 2 icon */
+        }
+
+        /* Base style untuk kedua icon */
+        .password-toggle,
+        .validation-icon {
+            position: absolute;
+            top: 0;
             height: 100%;
+            width: 42px;
             display: flex;
             align-items: center;
             justify-content: center;
+        }
+
+        /* Icon show password */
+        .password-toggle {
+            right: 0;
             cursor: pointer;
         }
 
         .password-toggle i {
-            transition: 0.2s;
+            transition: 0.2s ease;
         }
 
         .password-toggle:hover i {
             color: #0d6efd;
+        }
+
+        .validation-icon {
+            right: 42px;
+            /* selalu di kiri icon eye */
+            transition: 0.2s ease;
         }
     </style>
 </head>
@@ -93,34 +107,38 @@
                         <div class="mb-3">
                             <label>Password</label>
                             <div class="position-relative">
-                                <input type="password" id="password" name="password" class="form-control pe-5" required>
+                                <input type="password" id="password" name="password" class="form-control" required>
 
                                 <span class="position-absolute top-0 end-0 password-toggle" data-target="password">
                                     <i class="fa-solid fa-eye text-secondary"></i>
                                 </span>
                             </div>
                         </div>
-
                         <div class="mb-3">
                             <label>Konfirmasi Password</label>
 
                             <div class="position-relative">
-                                <input type="password" id="password_confirmation" name="password_confirmation"
-                                    class="form-control pe-5" required>
 
-                                <span class="position-absolute top-0 end-0 password-toggle"
-                                    data-target="password_confirmation">
+                                <input type="password" id="password_confirmation" name="password_confirmation"
+                                    class="form-control confirm-input" required>
+
+                                <!-- Icon Validasi -->
+                                <span id="validationIcon" class="validation-icon">
+                                    <i class="fa-solid"></i>
+                                </span>
+
+                                <!-- Icon Show Password -->
+                                <span class="password-toggle" data-target="password_confirmation">
                                     <i class="fa-solid fa-eye text-secondary"></i>
                                 </span>
-                            </div>
 
-                            <div class="invalid-feedback">
-                                Password tidak cocok
                             </div>
                         </div>
+
                         <button type="submit" id="submitBtn" class="btn btn-primary-custom w-100">
                             Register
                         </button>
+
                     </form>
 
                     <p class="text-center mt-3">
@@ -133,33 +151,39 @@
         </div>
     </div>
 
-
     <script>
-        const form = document.getElementById("registerForm");
+        document.addEventListener("DOMContentLoaded", function () {
+
+    const form = document.getElementById("registerForm");
     const password = document.getElementById("password");
     const confirmPassword = document.getElementById("password_confirmation");
     const submitBtn = document.getElementById("submitBtn");
+    const validationIcon = document.querySelector("#validationIcon i");
+
+    submitBtn.disabled = true;
 
     function validatePassword() {
 
-        // Jika salah satu kosong → disable submit
-        if (password.value === "" || confirmPassword.value === "") {
+        if (!password.value || !confirmPassword.value) {
             confirmPassword.classList.remove("is-invalid", "is-valid");
+            validationIcon.className = "fa-solid";
             submitBtn.disabled = true;
             return false;
         }
 
-        // Jika tidak cocok
         if (password.value !== confirmPassword.value) {
             confirmPassword.classList.add("is-invalid");
             confirmPassword.classList.remove("is-valid");
+
+            validationIcon.className = "fa-solid fa-xmark text-danger";
             submitBtn.disabled = true;
             return false;
         }
 
-        // Jika cocok
         confirmPassword.classList.remove("is-invalid");
         confirmPassword.classList.add("is-valid");
+
+        validationIcon.className = "fa-solid fa-check text-success";
         submitBtn.disabled = false;
         return true;
     }
@@ -167,16 +191,15 @@
     password.addEventListener("input", validatePassword);
     confirmPassword.addEventListener("input", validatePassword);
 
-    // Blok submit kalau tidak valid
     form.addEventListener("submit", function (e) {
         if (!validatePassword()) {
             e.preventDefault();
         }
     });
 
-    // Toggle password
     document.querySelectorAll(".password-toggle").forEach(toggle => {
         toggle.addEventListener("click", function () {
+
             const input = document.getElementById(this.dataset.target);
             const icon = this.querySelector("i");
 
@@ -187,9 +210,9 @@
         });
     });
 
-    // Disable tombol saat pertama load
-    submitBtn.disabled = true;
+});
     </script>
+
 </body>
 
 </html>
