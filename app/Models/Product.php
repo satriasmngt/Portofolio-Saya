@@ -4,10 +4,11 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Storage;
 
 class Product extends Model
 {
-     use HasFactory;
+    use HasFactory;
 
     /**
      * fillable
@@ -22,10 +23,10 @@ class Product extends Model
         'stock',
     ];
 
-      // accessor URL gambar
+    // accessor URL gambar
     public function getImageUrlAttribute()
     {
-        if ($this->image && file_exists(storage_path('app/public/products/' . $this->image))) {
+        if ($this->image) {
             return asset('storage/products/' . $this->image);
         }
 
