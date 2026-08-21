@@ -1,0 +1,6 @@
+version: "1"
+name: Portofolio-Saya
+language: laravel # ganti dengan go, python, java, dsb. sesuai bahasa proyek Anda
+functions:
+  - name: hello-world
+    handler: handler.hello
