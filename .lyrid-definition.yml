@@ -1,17 +1,12 @@
-version: "1"
+name: portofolio-laravel
+description: Website Portofolio Laravel
 
-name: Portofolio-Saya
-language: php
+ignoreFiles: |
+  .git
+  node_modules
+  .env
 
-web:
-  document_root: public
-
-build:
-  steps:
-    - composer install --no-dev --optimize-autoloader
-    - php artisan config:cache
-    - php artisan route:cache
-    - php artisan view:cache
-
-run:
-  command: php artisan serve --host=0.0.0.0 --port=$PORT
+modules:
+  - name: web
+    language: docker
+    description: Laravel App
